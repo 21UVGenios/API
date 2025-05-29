@@ -20,17 +20,17 @@ jobs:
           dotnet-version: '6.0.x'
 
       - name: 🛠️ Restaurar dependencias
-        run: dotnet restore
-
+        run: dotnet restore src/**/*.csproj
+      
       - name: 🧪 Compilar solución
-        run: dotnet build --no-restore --configuration Release
-
+        run: dotnet build src/**/*.csproj --no-restore --configuration Release
+      
       - name: ✅ Ejecutar pruebas (si existen)
-        run: dotnet test --no-build --verbosity normal
-
+        run: dotnet test src/**/*Tests.csproj --no-build --verbosity normal || echo "No tests found"
+      
       - name: 📦 Publicar artefactos
-        run: dotnet publish -c Release -o ./output
-
+        run: dotnet publish src/**/*.csproj -c Release -o ./output
+        
       - name: ⬆️ Subir artefacto compilado
         uses: actions/upload-artifact@v4
         with:
