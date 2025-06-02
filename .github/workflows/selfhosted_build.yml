@@ -10,28 +10,37 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
-steps:
-- checkout: self
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
+      - checkout: self
+        displayName: '📥 Clonar el repositorio'
 
-- task: UseDotNet@2
-  displayName: '🧰 Install .NET 6 SDK'
-  inputs:
-    packageType: 'sdk'
-    version: '6.0.x'
+      - task: UseDotNet@2
+        displayName: '🧰 Instalar .NET 6 LTS SDK'
+        inputs:
+          packageType: 'sdk'
+          version: '6.0.x'
+          installationPath: $(Agent.ToolsDirectory)/dotnet
 
-- script: dotnet restore src/**/*.csproj
-  displayName: '🛠️ Restore dependencies'
+      - script: dotnet restore src/**/*.csproj
+        displayName: '🛠️ Restaurar dependencias'
 
-- script: dotnet build src/**/*.csproj --no-restore --configuration $(buildConfiguration)
-  displayName: '🧪 Build solution'
+      - script: dotnet build src/**/*.csproj --no-restore --configuration $(buildConfiguration)
+        displayName: '🧪 Compilar solución'
 
-- script: |
-    dotnet test src/**/*Tests.csproj --no-build --verbosity normal || echo "No tests found"
-  displayName: '✅ Run tests'
+      - script: |
+          dotnet test src/**/*Tests.csproj --no-build --verbosity normal || echo "No tests found"
+        displayName: '✅ Ejecutar pruebas (si existen)'
 
-- script: dotnet publish src/**/*.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)
-  displayName: '📦 Publish artifacts'
+      - script: dotnet publish src/**/*.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/output
+        displayName: '📦 Publicar artefactos'
 
-- publish: $(Build.ArtifactStagingDirectory)
-  artifact: build-output
-  displayName: '⬆️ Publish build output artifact'
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)/output'
+          ArtifactName: 'build-output'
+          publishLocation: 'Container'
+        displayName: '⬆️ Subir artefacto compilado'
