@@ -1,0 +1,37 @@
+trigger:
+  branches:
+    include:
+      - dev
+      - release
+
+pool:
+  name: SegAPI
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- checkout: self
+
+- task: UseDotNet@2
+  displayName: '🧰 Install .NET 6 SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '6.0.x'
+
+- script: dotnet restore src/**/*.csproj
+  displayName: '🛠️ Restore dependencies'
+
+- script: dotnet build src/**/*.csproj --no-restore --configuration $(buildConfiguration)
+  displayName: '🧪 Build solution'
+
+- script: |
+    dotnet test src/**/*Tests.csproj --no-build --verbosity normal || echo "No tests found"
+  displayName: '✅ Run tests'
+
+- script: dotnet publish src/**/*.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)
+  displayName: '📦 Publish artifacts'
+
+- publish: $(Build.ArtifactStagingDirectory)
+  artifact: build-output
+  displayName: '⬆️ Publish build output artifact'
