@@ -18,6 +18,13 @@ stages:
       - checkout: self
         displayName: '📥 Clonar el repositorio'
 
+      - script: |
+          cp src/app/nuget.config .
+        displayName: '📋 Copiar nuget.config a la raíz'
+
+      - task: NuGetAuthenticate@1
+        displayName: '🔐 Autenticación en Azure Artifacts'
+
       - task: UseDotNet@2
         displayName: '🧰 Instalar .NET 6 LTS SDK'
         inputs:
@@ -38,11 +45,6 @@ stages:
       - script: dotnet pack src/**/*.csproj --no-build -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget
         displayName: '📦 Empaquetar NuGet'
 
-      - script: cp src/app/nuget.config nuget.config
-        displayName: '📄 Copiar nuget.config a la raíz'
-
       - script: |
-          dotnet nuget push "$(Build.ArtifactStagingDirectory)/nuget/*.nupkg" \
-            --source "UVGenios" \
-            --api-key "az"
+          dotnet nuget push "$(Build.ArtifactStagingDirectory)/nuget/*.nupkg" --source "https://pkgs.dev.azure.com/UVGenios/_packaging/UVGenios/nuget/v3/index.json" --api-key "az"
         displayName: '⬆️ Publicar paquete NuGet a feed UVGenios'
