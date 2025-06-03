@@ -38,9 +38,13 @@ stages:
       - script: dotnet publish src/**/*.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/output
         displayName: '📦 Publicar artefactos'
 
-      - task: PublishBuildArtifacts@1
+      - script: dotnet pack src/**/*.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget
+        displayName: '📦 Empaquetar NuGet'
+
+      - task: NuGetCommand@2
+        displayName: '⬆️ Publicar paquete NuGet a Feed UVGenios'
         inputs:
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)/output'
-          ArtifactName: 'build-output'
-          publishLocation: 'Container'
-        displayName: '⬆️ Subir artefacto compilado'
+          command: push
+          packagesToPush: '$(Build.ArtifactStagingDirectory)/nuget/*.nupkg'
+          publishFeed: 'UVGenios'
+          allowPackageConflicts: true
