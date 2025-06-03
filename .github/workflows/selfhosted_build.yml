@@ -39,5 +39,5 @@ stages:
         displayName: '📦 Empaquetar NuGet'
 
       - script: |
-          dotnet nuget push "$(Build.ArtifactStagingDirectory)/nuget/*.nupkg" --source "UVGenios" --api-key "az"
+          dotnet nuget push "$(Build.ArtifactStagingDirectory)/nuget/*.nupkg" --source "https://dev.azure.com/UVGenios/seguridad-2025/_artifacts/feed/UVGenios" --api-key "az"
         displayName: '⬆️ Publicar paquete NuGet a feed UVGenios'
