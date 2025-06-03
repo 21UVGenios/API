@@ -43,3 +43,5 @@ stages:
             --source "https://pkgs.dev.azure.com/UVGenios/_packaging/UVGenios/nuget/v3/index.json" \
             --api-key az
         displayName: '⬆️ Publicar paquete NuGet a feed UVGenios'
+        env:
+          VSS_NUGET_EXTERNAL_FEED_ENDPOINTS: '{"endpointCredentials": [{"endpoint":"https://pkgs.dev.azure.com/$(System.Organization)/_packaging/UVGenios/nuget/v3/index.json","password":"$(System.AccessToken)"}]}'
