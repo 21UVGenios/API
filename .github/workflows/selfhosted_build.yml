@@ -39,7 +39,7 @@ stages:
         displayName: '✅ Ejecutar pruebas (si existen)'
 
       - script: |
-          dotnet pack src/**/*.csproj --no-build -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget
+          dotnet pack src/**/*.csproj --no-build -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget /p:Version=1.0.$(Build.BuildId)
         displayName: '📦 Empaquetar NuGet'
 
       - script: |
