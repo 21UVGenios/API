@@ -35,16 +35,11 @@ stages:
           dotnet test src/**/*Tests.csproj --no-build --verbosity normal || echo "No tests found"
         displayName: '✅ Ejecutar pruebas (si existen)'
 
-      - script: dotnet publish src/**/*.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/output
-        displayName: '📦 Publicar artefactos'
-
-      - script: dotnet pack src/**/*.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget
+      - script: dotnet pack src/**/*.csproj --no-build -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget
         displayName: '📦 Empaquetar NuGet'
 
-      - task: NuGetCommand@2
-        displayName: '⬆️ Publicar paquete NuGet a Feed UVGenios'
-        inputs:
-          command: push
-          packagesToPush: '$(Build.ArtifactStagingDirectory)/nuget/*.nupkg'
-          publishFeed: 'UVGenios'
-          allowPackageConflicts: true
+      - script: |
+          dotnet nuget push "$(Build.ArtifactStagingDirectory)/nuget/*.nupkg" `
+            --source "https://pkgs.dev.azure.com/UVGenios/_packaging/UVGenios/nuget/v3/index.json" `
+            --api-key az
+        displayName: '⬆️ Publicar paquete NuGet a feed UVGenios'
