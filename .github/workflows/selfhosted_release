@@ -1,0 +1,47 @@
+trigger: none 
+
+resources:
+  pipelines:
+    - pipeline: buildPipeline
+      source: 21UVGenios.API 
+      trigger:
+        branches:
+          include:
+            - dev
+            - release
+
+pool:
+  name: SegAPI 
+
+variables:
+  buildConfiguration: 'Release'
+
+stages:
+- stage: Release
+  jobs:
+  - job: PublishJob
+    steps:
+      - checkout: self
+        displayName: '📥 Clonar el repositorio'
+
+      - download: buildPipeline
+        artifact: nuget  
+        displayName: '⬇️ Descargar artefactos desde Build'
+
+      - script: |
+          cp src/app/nuget.config .
+        displayName: '📋 Copiar nuget.config a la raíz'
+
+      - task: NuGetAuthenticate@1
+        displayName: '🔐 Autenticación en Azure Artifacts'
+
+      - task: UseDotNet@2
+        displayName: '🧰 Instalar .NET 6 LTS SDK'
+        inputs:
+          packageType: 'sdk'
+          version: '6.0.x'
+          installationPath: $(Agent.ToolsDirectory)/dotnet
+
+      - script: |
+          dotnet nuget push "$(Pipeline.Workspace)/buildPipeline/drop/*.nupkg" --source "UVGenios" --api-key "az"
+        displayName: '⬆️ Publicar paquete NuGet en feed UVGenios'
