@@ -43,5 +43,5 @@ stages:
           installationPath: $(Agent.ToolsDirectory)/dotnet
 
       - script: |
-          dotnet nuget push "$(Pipeline.Workspace)/buildPipeline/nuget/*.nupkg" --source "UVGenios" --api-key "az"
+          dotnet nuget push "$(Pipeline.Workspace)/buildPipeline/nuget/*.nupkg" --source "UVGenios" --api-key "az" --skip-duplicate
         displayName: '⬆️ Publicar paquete NuGet en feed UVGenios'
