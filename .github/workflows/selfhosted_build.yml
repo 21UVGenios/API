@@ -35,12 +35,9 @@ stages:
           dotnet test src/**/*Tests.csproj --no-build --verbosity normal || echo "No tests found"
         displayName: '✅ Ejecutar pruebas (si existen)'
 
-      - script: dotnet publish src/**/*.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/output
-        displayName: '📦 Publicar artefactos'
+      - script: dotnet pack src/**/*.csproj --no-build -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget
+        displayName: '📦 Empaquetar NuGet'
 
-      - task: PublishBuildArtifacts@1
-        inputs:
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)/output'
-          ArtifactName: 'build-output'
-          publishLocation: 'Container'
-        displayName: '⬆️ Subir artefacto compilado'
+      - script: |
+          dotnet nuget push "$(Build.ArtifactStagingDirectory)/nuget/*.nupkg" --source "https://dev.azure.com/UVGenios/seguridad-2025/_artifacts/feed/UVGenios" --api-key "az"
+        displayName: '⬆️ Publicar paquete NuGet a feed UVGenios'
