@@ -3,7 +3,7 @@ trigger: none
 resources:
   pipelines:
     - pipeline: buildPipeline
-      source: 21UVGenios.API 
+      source: buildPipeline 
       trigger:
         branches:
           include:
