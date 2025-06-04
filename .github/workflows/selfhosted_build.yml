@@ -1,12 +1,10 @@
-trigger: none 
+trigger: none
 
 pr:
   branches:
     include:
       - dev
       - release
-  autoCancel: false  
-  drafts: false 
 
 pool:
   name: SegAPI
@@ -25,8 +23,16 @@ stages:
       - task: NuGetToolInstaller@1
         displayName: '🔧 Instalar NuGet'
 
+      - task: NuGetCommand@2
+        displayName: '🛠️ Restaurar paquetes NuGet'
+        inputs:
+          command: 'restore'
+          restoreSolution: '**/*.sln'
+          feedsToUse: 'config'
+          nugetConfigPath: 'src/app/nuget.config'
+
       - task: NuGetAuthenticate@1
-        displayName: '🔑 Authenticate with Azure Artifacts'
+        displayName: '🔑 Autenticación en Azure Artifacts'
 
       - task: UseDotNet@2
         displayName: '🧰 Instalar .NET 8 SDK'
@@ -36,8 +42,8 @@ stages:
           installationPath: $(Agent.ToolsDirectory)/dotnet
 
       - script: |
-          dotnet restore src/app/app.csproj --configfile src/app/nuget.config
-          dotnet restore src/tests/appTests.csproj --configfile src/app/nuget.config
+          dotnet restore src/app/app.csproj
+          dotnet restore src/tests/appTests.csproj
         displayName: '🛠️ Restaurar dependencias'
 
       - script: |
@@ -58,9 +64,24 @@ stages:
           ls -la $(Build.ArtifactStagingDirectory)/nuget
         displayName: '🔍 Verificar paquetes NuGet generados'
 
+      - script: |
+          dotnet nuget push "$(Build.ArtifactStagingDirectory)/nuget/*.nupkg" --source "UVGenios" --api-key "az" --skip-duplicate
+        displayName: '⬆️ Publicar paquete NuGet en feed UVGenios'
+
       - task: PublishBuildArtifacts@1
-        displayName: '📤 Publicar artefactos'
+        displayName: '📤 Publicar artefactos para release'
         inputs:
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)/nuget'
-          ArtifactName: 'nuget'
+          PathtoPublish: 'src/app/bin/$(buildConfiguration)/net8.0/publish'
+          ArtifactName: 'functionapp'
+          publishLocation: 'Container'
+
+      - script: |
+          dotnet publish src/app/app.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/functionapp
+        displayName: '🚀 Publicar app para Azure Functions'
+
+      - task: PublishBuildArtifacts@1
+        displayName: '📤 Publicar artefactos de Azure Functions'
+        inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)/functionapp'
+          ArtifactName: 'functionapp'
           publishLocation: 'Container'
