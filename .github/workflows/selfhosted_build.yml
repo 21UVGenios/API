@@ -25,6 +25,9 @@ stages:
       - script: cp src/app/nuget.config .
         displayName: '📋 Copiar nuget.config a la raíz'
 
+      - task: NuGetAuthenticate@1
+        displayName: '🔑 Authenticate with Azure Artifacts'
+
       - task: UseDotNet@2
         displayName: '🧰 Instalar .NET 8 SDK'
         inputs:
