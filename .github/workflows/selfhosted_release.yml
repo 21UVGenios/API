@@ -1,0 +1,28 @@
+trigger: none 
+
+resources:
+  pipelines:
+    - pipeline: buildPipeline
+      source: buildPipeline 
+      trigger:
+        branches:
+          include:
+            - dev
+            - release
+            - main
+            - prod
+
+pool:
+  name: SegAPI 
+
+variables:
+  buildConfiguration: 'Release'
+
+stages:
+- stage: Release
+  jobs:
+  - job: PublishJob
+    steps:
+      - checkout: self
+        displayName: '📥 Clonar el repositorio'
+
