@@ -39,22 +39,13 @@ steps:
     displayName: '🏗️ Compilar solución'
 
   - script: |
-      dotnet publish src/app/app.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/functionapp --no-build
-    displayName: '🚀 Publicar Azure Function'
-
-  - task: ArchiveFiles@2
-    displayName: '🗜️ Comprimir publicación como .zip'
-    inputs:
-      rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/functionapp'
-      includeRootFolder: false
-      archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/functionapp.zip'
-      replaceExistingArchive: true
+      dotnet publish src/app/app.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/functionapp
+    displayName: '🚀 Publicar app para Azure Functions'
 
   - task: PublishBuildArtifacts@1
-    displayName: '📤 Publicar artefactos para release'
+    displayName: '📤 Publicar artefactos de Azure Functions'
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/functionapp.zip'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/functionapp'
       ArtifactName: 'functionapp'
       publishLocation: 'Container'
 
