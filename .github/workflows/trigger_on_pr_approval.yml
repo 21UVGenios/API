@@ -4,28 +4,21 @@ on:
     types: [submitted]
 
 jobs:
-  trigger-ado-on-approval:
+  trigger_ado:
     if: github.event.review.state == 'approved'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+      checks: write
+
     steps:
-      - name: Check if PR is approved
-        id: check-approval
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { data: reviews } = await github.rest.pulls.listReviews({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-            });
-            const approved = reviews.some(r => r.state === 'APPROVED');
-            core.setOutput('approved', approved);
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Trigger Azure DevOps Pipeline
-        if: steps.check-approval.outputs.approved == 'true'
-        uses: actions/azure-devops-run-pipeline@v1
+        uses: Azure/pipelines-action@v1
         with:
-          azure-devops-server-url: https://dev.azure.com/your-org
-          project: your-project-name
-          pipeline: your-pipeline-name
-          token: ${{ secrets.AZURE_DEVOPS_PAT }}
+          azure-devops-project-url: https://dev.azure.com/UVGenios
+          azure-pipeline-name: 'buildPipeline'
+          azure-devops-token: ${{ secrets.AZURE_DEVOPS_PAT }}
