@@ -24,14 +24,6 @@ stages:
 
       - task: NuGetToolInstaller@1
         displayName: '🔧 Instalar NuGet'
-      
-      - task: NuGetCommand@2
-        displayName: '🛠️ Restaurar paquetes NuGet'
-        inputs:
-          command: 'restore'
-          restoreSolution: '**/*.sln'
-          feedsToUse: 'config'
-          nugetConfigPath: 'src/app/nuget.config'
 
       - task: NuGetAuthenticate@1
         displayName: '🔑 Authenticate with Azure Artifacts'
@@ -44,8 +36,8 @@ stages:
           installationPath: $(Agent.ToolsDirectory)/dotnet
 
       - script: |
-          dotnet restore src/app/app.csproj
-          dotnet restore src/tests/appTests.csproj
+          dotnet restore src/app/app.csproj --configfile src/app/nuget.config
+          dotnet restore src/tests/appTests.csproj --configfile src/app/nuget.config
         displayName: '🛠️ Restaurar dependencias'
 
       - script: |
