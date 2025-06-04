@@ -12,6 +12,7 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
+
 steps:
   - task: UseDotNet@2
     displayName: '🧰 Instalar .NET 8 SDK'
