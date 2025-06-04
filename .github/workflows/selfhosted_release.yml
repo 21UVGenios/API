@@ -9,6 +9,8 @@ resources:
           include:
             - dev
             - release
+            - main
+            - prod
 
 pool:
   name: SegAPI 
