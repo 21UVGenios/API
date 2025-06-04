@@ -7,7 +7,6 @@ pr:
       - release
   autoCancel: false  
   drafts: false 
-  trigger: completed 
 
 pool:
   name: SegAPI
