@@ -1,14 +1,16 @@
-trigger: none
+trigger: none 
 
 resources:
   pipelines:
-    - pipeline: buildPipeline
-      source: buildPipeline
+    - pipeline: buildPipeline  
+      source: buildPipeline    
       trigger:
         branches:
           include:
             - dev
             - release
+            - main
+            - prod
 
 pool:
   name: SegAPI
