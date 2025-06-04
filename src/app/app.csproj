@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk.Functions.Worker.Sdk" />
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
@@ -18,4 +20,5 @@
     </None>
   </ItemGroup>
 
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk.Functions.Worker.Sdk" />
 </Project>
