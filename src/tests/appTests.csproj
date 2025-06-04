@@ -1,0 +1,3 @@
+<ItemGroup>
+  <ProjectReference Include="..\app\app.csproj" />
+</ItemGroup>
