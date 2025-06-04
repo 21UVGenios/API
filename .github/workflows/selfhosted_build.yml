@@ -1,6 +1,12 @@
 trigger: none
 
-pr: none
+pr:
+  branches:
+    include:
+      - dev
+      - release
+      - main
+      - prod
 
 pool:
   name: SegAPI
