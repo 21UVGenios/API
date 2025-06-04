@@ -42,6 +42,11 @@ steps:
       dotnet publish src/app/app.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/functionapp --no-build
     displayName: '🚀 Publicar Azure Function'
 
+  - script: |
+      ls -la $(Build.ArtifactStagingDirectory)/functionapp
+      cat $(Build.ArtifactStagingDirectory)/functionapp/host.json
+    displayName: '👀 Ver contenido publicado'
+
   - task: PublishBuildArtifacts@1
     displayName: '📤 Publicar artefactos para release'
     inputs:
