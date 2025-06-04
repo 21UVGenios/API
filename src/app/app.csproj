@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <OutputType>Exe</OutputType>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
     <ImplicitUsings>enable</ImplicitUsings>
