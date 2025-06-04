@@ -75,10 +75,16 @@ stages:
       - script: |
           dotnet publish src/app/app.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/functionapp
         displayName: '🚀 Publicar app para Azure Functions'
-
+      
+      - script: |
+          cd $(Build.ArtifactStagingDirectory)/functionapp
+          zip -r ../functionapp.zip .
+        displayName: 'Crear ZIP del artifact functionapp'
+      
       - task: PublishBuildArtifacts@1
         displayName: '📤 Publicar artefactos de Azure Functions'
         inputs:
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)/functionapp'
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)/functionapp.zip'
           ArtifactName: 'functionapp'
           publishLocation: 'Container'
+
