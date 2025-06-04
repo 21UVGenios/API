@@ -1,19 +1,17 @@
-trigger: none 
+trigger: none
 
 resources:
   pipelines:
     - pipeline: buildPipeline
-      source: buildPipeline 
+      source: buildPipeline
       trigger:
         branches:
           include:
             - dev
             - release
-            - main
-            - prod
 
 pool:
-  name: SegAPI 
+  name: SegAPI
 
 variables:
   buildConfiguration: 'Release'
@@ -26,3 +24,21 @@ stages:
       - checkout: self
         displayName: '📥 Clonar el repositorio'
 
+      - download: buildPipeline
+        artifact: functionapp
+        displayName: '⬇️ Descargar artefactos desde buildPipeline'
+
+      - task: UseDotNet@2
+        displayName: '🧰 Instalar .NET 8 SDK'
+        inputs:
+          packageType: 'sdk'
+          version: '8.0.x'
+          installationPath: $(Agent.ToolsDirectory)/dotnet
+
+      - task: AzureFunctionApp@1
+        displayName: '🚀 Desplegar Azure Function App'
+        inputs:
+          azureSubscription: 'UVGeniosServiceConFun'
+          appType: functionApp
+          appName: 'UVGeniosFunction'
+          package: '$(Pipeline.Workspace)/buildPipeline/functionapp.zip'
