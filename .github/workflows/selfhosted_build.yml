@@ -1,8 +1,13 @@
-trigger:
+trigger: none 
+
+pr:
   branches:
     include:
       - dev
       - release
+  autoCancel: false  
+  drafts: false 
+  trigger: completed 
 
 pool:
   name: SegAPI
@@ -22,10 +27,10 @@ stages:
         displayName: '📋 Copiar nuget.config a la raíz'
 
       - task: UseDotNet@2
-        displayName: '🧰 Instalar .NET 6 LTS SDK'
+        displayName: '🧰 Instalar .NET 8 SDK'
         inputs:
           packageType: 'sdk'
-          version: '6.0.x'
+          version: '8.0.x'
           installationPath: $(Agent.ToolsDirectory)/dotnet
 
       - script: dotnet restore src/**/*.csproj
