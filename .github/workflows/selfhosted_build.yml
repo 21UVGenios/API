@@ -19,9 +19,11 @@ stages:
     steps:
       - checkout: self
         displayName: '📥 Clonar el repositorio'
+      
+      - script: |
+          cp src/app/nuget.config .
+        displayName: '📋 Copiar nuget.config a la raíz'
 
-      - task: NuGetToolInstaller@1
-        displayName: '🔧 Instalar NuGet'
 
       - task: NuGetCommand@2
         displayName: '🛠️ Restaurar paquetes NuGet'
