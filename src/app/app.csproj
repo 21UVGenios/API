@@ -3,17 +3,22 @@
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
-    <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput> <!-- Add this -->
+    <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.16.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.16.0" OutputItemType="Analyzer" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.3.0" /> <!-- Add this -->
+    
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
+    
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Abstractions" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Microsoft.Azure.Functions.Worker" />
-    <Using Include="Microsoft.Azure.Functions.Worker.Extensions.Http" />
+    <Using Include="Microsoft.Azure.Functions.Worker.Http" />
+    <Using Include="System.Net" />
   </ItemGroup>
 </Project>
