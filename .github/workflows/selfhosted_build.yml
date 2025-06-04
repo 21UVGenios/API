@@ -48,7 +48,9 @@ stages:
           dotnet restore src/tests/appTests.csproj
         displayName: '🛠️ Restaurar dependencias'
 
-      - script: dotnet build src/**/*.csproj --no-restore --configuration $(buildConfiguration)
+      - script: |
+          dotnet build src/app/app.csproj --no-restore --configuration $(buildConfiguration)
+          dotnet build src/tests/appTests.csproj --no-restore --configuration $(buildConfiguration)
         displayName: '🧪 Compilar solución'
 
       - script: |
@@ -56,7 +58,8 @@ stages:
         displayName: '✅ Ejecutar pruebas (si existen)'
 
       - script: |
-          dotnet pack src/**/*.csproj --no-build -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget /p:Version=1.0.$(Build.BuildId)
+          dotnet pack src/app/app.csproj --no-build -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget /p:Version=1.0.$(Build.BuildId)
+          dotnet pack src/tests/appTests.csproj --no-build -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget /p:Version=1.0.$(Build.BuildId)
         displayName: '📦 Empaquetar NuGet'
 
       - script: |
