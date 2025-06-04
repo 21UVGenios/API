@@ -7,7 +7,7 @@ trigger:
       - prod
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: "SegAPI"
 
 variables:
   buildConfiguration: 'Release'
@@ -42,19 +42,10 @@ steps:
       dotnet publish src/app/app.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/functionapp --no-build
     displayName: '🚀 Publicar Azure Function'
 
-  - task: ArchiveFiles@2
-    displayName: '🗜️ Comprimir publicación como .zip'
-    inputs:
-      rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/functionapp'
-      includeRootFolder: false
-      archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/functionapp.zip'
-      replaceExistingArchive: true
-
   - task: PublishBuildArtifacts@1
     displayName: '📤 Publicar artefactos para release'
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/functionapp.zip'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/functionapp'
       ArtifactName: 'functionapp'
       publishLocation: 'Container'
 
