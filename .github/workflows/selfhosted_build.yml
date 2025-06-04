@@ -21,9 +21,11 @@ stages:
     steps:
       - checkout: self
         displayName: '📥 Clonar el repositorio'
+      
+      - script: |
+          cp src/app/nuget.config .
+        displayName: '📋 Copiar nuget.config a la raíz'
 
-      - task: NuGetToolInstaller@1
-        displayName: '🔧 Instalar NuGet'
 
       - task: NuGetAuthenticate@1
         displayName: '🔑 Authenticate with Azure Artifacts'
@@ -36,8 +38,8 @@ stages:
           installationPath: $(Agent.ToolsDirectory)/dotnet
 
       - script: |
-          dotnet restore src/app/app.csproj --configfile src/app/nuget.config
-          dotnet restore src/tests/appTests.csproj --configfile src/app/nuget.config
+          dotnet restore src/app/app.csproj
+          dotnet restore src/tests/appTests.csproj
         displayName: '🛠️ Restaurar dependencias'
 
       - script: |
