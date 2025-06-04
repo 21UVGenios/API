@@ -1,14 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
+    <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput> <!-- Add this -->
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.16.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.16.0" OutputItemType="Analyzer" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.3.0" /> <!-- Add this -->
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="Microsoft.Azure.Functions.Worker" />
+    <Using Include="Microsoft.Azure.Functions.Worker.Extensions.Http" />
+  </ItemGroup>
 </Project>
