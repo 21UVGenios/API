@@ -1,0 +1,31 @@
+name: Trigger Azure DevOps on PR Approval
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  trigger-ado-on-approval:
+    if: github.event.review.state == 'approved'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR is approved
+        id: check-approval
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+            const approved = reviews.some(r => r.state === 'APPROVED');
+            core.setOutput('approved', approved);
+
+      - name: Trigger Azure DevOps Pipeline
+        if: steps.check-approval.outputs.approved == 'true'
+        uses: actions/azure-devops-run-pipeline@v1
+        with:
+          azure-devops-server-url: https://dev.azure.com/your-org
+          project: your-project-name
+          pipeline: your-pipeline-name
+          token: ${{ secrets.AZURE_DEVOPS_PAT }}
