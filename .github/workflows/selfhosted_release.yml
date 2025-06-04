@@ -24,24 +24,3 @@ stages:
       - checkout: self
         displayName: '📥 Clonar el repositorio'
 
-      - download: buildPipeline
-        artifact: nuget  
-        displayName: '⬇️ Descargar artefactos desde Build'
-
-      - script: |
-          cp src/app/nuget.config .
-        displayName: '📋 Copiar nuget.config a la raíz'
-
-      - task: NuGetAuthenticate@1
-        displayName: '🔐 Autenticación en Azure Artifacts'
-
-      - task: UseDotNet@2
-        displayName: '🧰 Instalar .NET 6 LTS SDK'
-        inputs:
-          packageType: 'sdk'
-          version: '6.0.x'
-          installationPath: $(Agent.ToolsDirectory)/dotnet
-
-      - script: |
-          dotnet nuget push "$(Pipeline.Workspace)/buildPipeline/nuget/*.nupkg" --source "UVGenios" --api-key "az" --skip-duplicate
-        displayName: '⬆️ Publicar paquete NuGet en feed UVGenios'
