@@ -70,13 +70,6 @@ stages:
           dotnet nuget push "$(Build.ArtifactStagingDirectory)/nuget/*.nupkg" --source "UVGenios" --api-key "az" --skip-duplicate
         displayName: '⬆️ Publicar paquete NuGet en feed UVGenios'
 
-      - task: PublishBuildArtifacts@1
-        displayName: '📤 Publicar artefactos para release'
-        inputs:
-          PathtoPublish: 'src/app/bin/$(buildConfiguration)/net8.0/publish'
-          ArtifactName: 'functionapp'
-          publishLocation: 'Container'
-
       - script: |
           dotnet publish src/app/app.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/functionapp
         displayName: '🚀 Publicar app para Azure Functions'
