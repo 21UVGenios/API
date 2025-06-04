@@ -3,6 +3,7 @@ using System.IO;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
+using Microsoft.Extensions.Hosting;
 
 public class UVGFunction
 {
@@ -16,5 +17,17 @@ public class UVGFunction
         response.WriteString($"Proyecto de Seguridad 2025 {guid}");
         
         return response;
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        var host = new HostBuilder()
+            .ConfigureFunctionsWorkerDefaults()
+            .Build();
+
+        host.Run();
     }
 }
