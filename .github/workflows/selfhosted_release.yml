@@ -39,6 +39,11 @@ stages:
           version: '8.0.x'
           installationPath: $(Agent.ToolsDirectory)/dotnet
 
+      - script: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          az --version
+        displayName: "Instalar Azure CLI"
+
       - task: AzureCLI@2
         displayName: '🚀 Desplegar Azure Function App con ZIP'
         inputs:
