@@ -50,5 +50,5 @@ stages:
             echo "🚀 Desplegando Azure Function..."
             az functionapp deployment source config-zip \
               --name UVGeniosFunction \
-              --resource-group UVGenios \
+              --resource-group UVGeniosFunction_group \
               --src "$ZIP_FILE"
