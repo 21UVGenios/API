@@ -2,8 +2,8 @@ trigger: none
 
 resources:
   pipelines:
-    - pipeline: buildPipeline
-      source: buildPipeline 
+    - pipeline: buildPipeline  
+      source: buildPipeline    
       trigger:
         branches:
           include:
@@ -13,7 +13,7 @@ resources:
             - prod
 
 pool:
-  name: SegAPI 
+  name: SegAPI
 
 variables:
   buildConfiguration: 'Release'
@@ -26,3 +26,29 @@ stages:
       - checkout: self
         displayName: '📥 Clonar el repositorio'
 
+      - download: buildPipeline
+        artifact: functionapp
+        displayName: '⬇️ Descargar artefactos desde buildPipeline'
+
+      - task: AzureCLI@2
+        displayName: '🚀 Desplegar Function App con az CLI'
+        inputs:
+          azureSubscription: 'UVGeniosServiceConFun'
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            echo "📦 Buscando archivo ZIP..."
+            ZIP_FILE=$(find "$(Pipeline.Workspace)/buildPipeline/functionapp" -name "*.zip" | head -1)
+      
+            if [ -z "$ZIP_FILE" ]; then
+              echo "❌ No se encontró ningún archivo .zip para desplegar."
+              exit 1
+            fi
+      
+            echo "✅ Archivo ZIP encontrado: $ZIP_FILE"
+      
+            echo "🚀 Desplegando Azure Function..."
+            az functionapp deployment source config-zip \
+              --name UVGeniosFunction \
+              --resource-group UVGeniosFunction_group \
+              --src "$ZIP_FILE"
