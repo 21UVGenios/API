@@ -9,7 +9,7 @@ pool:
   name: SegAPI
 
 variables:
-  TF_DIR: 'infra'
+  TF_DIR: 'src/infra'
 
 stages:
 - stage: Terraform_Deploy
