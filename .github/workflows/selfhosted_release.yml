@@ -38,23 +38,17 @@ stages:
           scriptLocation: inlineScript
           inlineScript: |
             echo "📦 Buscando archivo ZIP..."
-            ZIP_FILE=$(find $(System.DefaultWorkingDirectory)/functionapp -name "*.zip" | head -1)
-  
+            ZIP_FILE=$(find "$(Pipeline.Workspace)/buildPipeline/functionapp" -name "*.zip" | head -1)
+      
             if [ -z "$ZIP_FILE" ]; then
               echo "❌ No se encontró ningún archivo .zip para desplegar."
               exit 1
             fi
-  
-            echo "📄 Archivo encontrado: $ZIP_FILE"
-  
-            echo "🚀 Iniciando despliegue..."
+      
+            echo "✅ Archivo ZIP encontrado: $ZIP_FILE"
+      
+            echo "🚀 Desplegando Azure Function..."
             az functionapp deployment source config-zip \
-              --resource-group $RESOURCE_GROUP \
-              --name $FUNCTION_APP_NAME \
-              --src "$ZIP_FILE" \
-              --build-remote false
-  
-            echo "✅ Despliegue completado."
-        env:
-          RESOURCE_GROUP: 'UVGeniosFunction_group'
-          FUNCTION_APP_NAME: 'UVGeniosFunction' 
+              --name UVGeniosFunction \
+              --resource-group UVGenios \
+              --src "$ZIP_FILE"
