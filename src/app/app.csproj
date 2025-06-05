@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
+    <UseFunctionsWorkerSdk>true</UseFunctionsWorkerSdk>
   </PropertyGroup>
 
   <ItemGroup>
