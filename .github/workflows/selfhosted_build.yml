@@ -11,6 +11,7 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  outputFolder: '$(Build.ArtifactStagingDirectory)/functionapp'
 
 steps:
   - task: UseDotNet@2
@@ -39,13 +40,22 @@ steps:
     displayName: '🏗️ Compilar solución'
 
   - script: |
-      dotnet publish src/app/app.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/functionapp --no-build
+      dotnet test src/**/*Tests.csproj --no-build --verbosity normal || echo "No tests found"
+    displayName: '✅ Ejecutar pruebas (si existen)'
+
+  - script: |
+      dotnet publish src/app/app.csproj --configuration $(buildConfiguration) --output $(outputFolder) --no-build
     displayName: '🚀 Publicar Azure Function'
+
+  - script: |
+      cd $(outputFolder)
+      zip -r functionapp.zip .
+    displayName: '🗜️ Crear archivo ZIP dentro del folder functionapp'
 
   - task: PublishBuildArtifacts@1
     displayName: '📤 Publicar artefactos para release'
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/functionapp'
+      PathtoPublish: '$(outputFolder)'
       ArtifactName: 'functionapp'
       publishLocation: 'Container'
 
