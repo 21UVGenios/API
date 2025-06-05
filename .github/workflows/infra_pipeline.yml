@@ -1,0 +1,51 @@
+trigger:
+  branches:
+    include:
+      - infra
+      - main
+      - release
+
+pool:
+  name: SegAPI
+
+variables:
+  TF_DIR: 'infra'
+
+stages:
+- stage: Terraform_Deploy
+  displayName: "🚀 Despliegue de Infraestructura con Terraform"
+  jobs:
+  - job: TerraformJob
+    displayName: "Ejecutar Terraform"
+    steps:
+    - checkout: self
+      displayName: "📥 Clonar repositorio"
+
+    - task: AzureCLI@2
+      displayName: "🌍 Autenticarse con Azure"
+      inputs:
+        azureSubscription: 'UVGeniosServiceConFun'
+        scriptType: bash
+        scriptLocation: inlineScript
+        workingDirectory: $(TF_DIR)
+        inlineScript: |
+          echo "🔐 Autenticando..."
+          az account show
+
+    - script: |
+        echo "📦 Inicializando Terraform..."
+        terraform init
+      displayName: "Terraform Init"
+      workingDirectory: $(TF_DIR)
+
+    - script: |
+        echo "🧾 Planificando infraestructura..."
+        terraform plan -var-file="terraform.tfvars"
+      displayName: "Terraform Plan"
+      workingDirectory: $(TF_DIR)
+
+    - script: |
+        echo "🚀 Aplicando infraestructura..."
+        terraform apply -auto-approve -var-file="terraform.tfvars"
+      displayName: "Terraform Apply"
+      workingDirectory: $(TF_DIR)

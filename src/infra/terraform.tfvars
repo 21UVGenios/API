@@ -1,0 +1,5 @@
+resource_group_name   = "UVGeniosFunction_group"
+project_name          = "UVGeniosFunction"
+function_name         = "UVGeniosFunction"
+tenant_id             = "73c3e337-a317-4624-bb03-047663c4d9ed"
+db_connection_string  = "Server=...;Database=...;User Id=...;Password=...;"
