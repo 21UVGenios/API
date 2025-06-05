@@ -1,4 +1,4 @@
-trigger: none 
+trigger: none
 
 resources:
   pipelines:
@@ -17,6 +17,8 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  RESOURCE_GROUP: 'UVGeniosFunction_group' 
+  FUNCTION_APP_NAME: 'UVGeniosFunction'  
 
 stages:
 - stage: Release
@@ -37,10 +39,20 @@ stages:
           version: '8.0.x'
           installationPath: $(Agent.ToolsDirectory)/dotnet
 
-      - task: AzureFunctionApp@1
-        displayName: '🚀 Desplegar Azure Function App'
+      - task: AzureCLI@2
+        displayName: '🚀 Desplegar Azure Function App con ZIP'
         inputs:
           azureSubscription: 'UVGeniosServiceConFun'
-          appType: functionApp
-          appName: 'UVGeniosFunction'
-          package: '$(Pipeline.Workspace)/buildPipeline/functionapp'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            echo "🔍 Buscando ZIP de publicación..."
+            ZIP_FILE=$(find "$(Pipeline.Workspace)/buildPipeline" -name "*.zip" | head -1)
+            echo "📦 Archivo encontrado: $ZIP_FILE"
+            echo "🚀 Desplegando a Azure Function App: $FUNCTION_APP_NAME"
+
+            az functionapp deployment source config-zip \
+              --resource-group $RESOURCE_GROUP \
+              --name $FUNCTION_APP_NAME \
+              --src "$ZIP_FILE" \
+              --build-remote false
