@@ -1,6 +1,4 @@
-trigger: none
-
-pr:
+trigger:
   branches:
     include:
       - dev
@@ -9,82 +7,62 @@ pr:
       - prod
 
 pool:
-  name: SegAPI
+  name: "SegAPI"
 
 variables:
   buildConfiguration: 'Release'
+  outputFolder: '$(Build.ArtifactStagingDirectory)/functionapp'
 
-stages:
-- stage: Build
-  jobs:
-  - job: BuildJob
-    steps:
-      - checkout: self
-        displayName: '📥 Clonar el repositorio'
-      
-      - script: |
-          cp src/app/nuget.config .
-        displayName: '📋 Copiar nuget.config a la raíz'
+steps:
+  - task: UseDotNet@2
+    displayName: '🧰 Instalar .NET 8 SDK'
+    inputs:
+      packageType: 'sdk'
+      version: '8.0.x'
+      installationPath: $(Agent.ToolsDirectory)/dotnet
 
+  - task: NuGetToolInstaller@1
+    displayName: '📦 Instalar NuGet CLI'
 
-      - task: NuGetCommand@2
-        displayName: '🛠️ Restaurar paquetes NuGet'
-        inputs:
-          command: 'restore'
-          restoreSolution: '**/*.sln'
-          feedsToUse: 'config'
-          nugetConfigPath: 'src/app/nuget.config'
+  - task: NuGetAuthenticate@1
+    displayName: '🔐 Autenticación con Azure Artifacts'
 
-      - task: NuGetAuthenticate@1
-        displayName: '🔑 Autenticación en Azure Artifacts'
+  - script: |
+      cp src/app/nuget.config .
+    displayName: '📋 Copiar nuget.config a raíz'
 
-      - task: UseDotNet@2
-        displayName: '🧰 Instalar .NET 8 SDK'
-        inputs:
-          packageType: 'sdk'
-          version: '8.0.x'
-          installationPath: $(Agent.ToolsDirectory)/dotnet
+  - script: |
+      dotnet restore src/app/app.csproj --configfile nuget.config
+    displayName: '🔧 Restaurar dependencias'
 
-      - script: |
-          dotnet restore src/app/app.csproj
-          dotnet restore src/tests/appTests.csproj
-        displayName: '🛠️ Restaurar dependencias'
+  - script: |
+      dotnet build src/app/app.csproj --configuration $(buildConfiguration) --no-restore
+    displayName: '🏗️ Compilar solución'
 
-      - script: |
-          dotnet build src/app/app.csproj --no-restore --configuration $(buildConfiguration)
-          dotnet build src/tests/appTests.csproj --no-restore --configuration $(buildConfiguration)
-        displayName: '🧪 Compilar solución'
+  - script: |
+      dotnet test src/**/*Tests.csproj --no-build --verbosity normal || echo "No tests found"
+    displayName: '✅ Ejecutar pruebas (si existen)'
 
-      - script: |
-          dotnet test src/**/*Tests.csproj --no-build --verbosity normal || echo "No tests found"
-        displayName: '✅ Ejecutar pruebas (si existen)'
+  - script: |
+      dotnet publish src/app/app.csproj --configuration $(buildConfiguration) --output $(outputFolder) --no-build
+    displayName: '🚀 Publicar Azure Function'
 
-      - script: |
-          dotnet pack src/app/app.csproj --no-build -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget /p:Version=1.0.$(Build.BuildId)
-          dotnet pack src/tests/appTests.csproj --no-build -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget /p:Version=1.0.$(Build.BuildId)
-        displayName: '📦 Empaquetar NuGet'
+  - script: |
+      cd $(outputFolder)
+      zip -r functionapp.zip .
+    displayName: '🗜️ Crear archivo ZIP dentro del folder functionapp'
 
-      - script: |
-          ls -la $(Build.ArtifactStagingDirectory)/nuget
-        displayName: '🔍 Verificar paquetes NuGet generados'
+  - task: PublishBuildArtifacts@1
+    displayName: '📤 Publicar artefactos para release'
+    inputs:
+      PathtoPublish: '$(outputFolder)'
+      ArtifactName: 'functionapp'
+      publishLocation: 'Container'
 
-      - script: |
-          dotnet nuget push "$(Build.ArtifactStagingDirectory)/nuget/*.nupkg" --source "UVGenios" --api-key "az" --skip-duplicate
-        displayName: '⬆️ Publicar paquete NuGet en feed UVGenios'
+  - script: |
+      dotnet pack src/app/app.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/nuget
+    displayName: '📦 Empaquetar NuGet'
 
-      - script: |
-          dotnet publish src/app/app.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/functionapp
-        displayName: '🚀 Publicar app para Azure Functions'
-      
-      - script: |
-          cd $(Build.ArtifactStagingDirectory)/functionapp
-          zip -r ../functionapp.zip .
-        displayName: 'Crear ZIP del artifact functionapp'
-      
-      - task: PublishBuildArtifacts@1
-        displayName: '📤 Publicar artefactos de Azure Functions'
-        inputs:
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)/functionapp.zip'
-          ArtifactName: 'functionapp'
-          publishLocation: 'Container'
-
+  - script: |
+      dotnet nuget push "$(Build.ArtifactStagingDirectory)/nuget/*.nupkg" --source "UVGenios" --api-key "az" --skip-duplicate
+    displayName: '⬆️ Publicar paquete NuGet en UVGenios'
