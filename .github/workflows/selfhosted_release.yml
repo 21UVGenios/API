@@ -43,4 +43,4 @@ stages:
           azureSubscription: 'UVGeniosServiceConFun'
           appType: functionApp
           appName: 'UVGeniosFunction'
-          package: '$(Pipeline.Workspace)/buildPipeline/functionapp'
+          package: '$(Pipeline.Workspace)/buildPipeline/functionapp/functionapp.zip'
