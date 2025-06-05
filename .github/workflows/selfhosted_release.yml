@@ -56,5 +56,5 @@ stages:
   
             echo "✅ Despliegue completado."
         env:
-          RESOURCE_GROUP: 'NombreDeTuResourceGroup'
+          RESOURCE_GROUP: 'UVGeniosFunction_group'
           FUNCTION_APP_NAME: 'UVGeniosFunction' 
