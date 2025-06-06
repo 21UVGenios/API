@@ -9,14 +9,14 @@ pool:
   name: SegAPI
 
 variables:
-  TF_DIR: 'infra'
+  TF_DIR: 'src/infra'
 
 stages:
-- stage: Terraform_Deploy
-  displayName: "🚀 Despliegue de Infraestructura con Terraform"
+- stage: Infra_Base
+  displayName: "🚧 Infraestructura base sin secret"
   jobs:
-  - job: TerraformJob
-    displayName: "Ejecutar Terraform"
+  - job: TerraformInit
+    displayName: "🔧 Terraform Init & Apply sin secret"
     steps:
     - checkout: self
       displayName: "📥 Clonar repositorio"
@@ -39,13 +39,46 @@ stages:
       workingDirectory: $(TF_DIR)
 
     - script: |
-        echo "🧾 Planificando infraestructura..."
-        terraform plan -var-file="terraform.tfvars"
-      displayName: "Terraform Plan"
+        echo "🧾 Planificando infraestructura sin secret..."
+        terraform plan -var-file="terraform.tfvars" -var="attach_secret=false"
+      displayName: "Terraform Plan sin secret"
       workingDirectory: $(TF_DIR)
 
     - script: |
-        echo "🚀 Aplicando infraestructura..."
-        terraform apply -auto-approve -var-file="terraform.tfvars"
-      displayName: "Terraform Apply"
+        echo "🚀 Aplicando infraestructura sin secret..."
+        terraform apply -auto-approve -var-file="terraform.tfvars" -var="attach_secret=false"
+      displayName: "Terraform Apply sin secret"
+      workingDirectory: $(TF_DIR)
+
+- stage: Attach_Secrets
+  displayName: "🔐 Enlazar secrets al Function App"
+  dependsOn: Infra_Base
+  condition: succeeded()
+  jobs:
+  - job: AddSecret
+    displayName: "🔁 Reaplicar con attach_secret=true"
+    steps:
+    - checkout: self
+
+    - task: AzureCLI@2
+      displayName: "🌍 Autenticarse con Azure"
+      inputs:
+        azureSubscription: 'UVGeniosServiceConFun'
+        scriptType: bash
+        scriptLocation: inlineScript
+        workingDirectory: $(TF_DIR)
+        inlineScript: |
+          echo "🔐 Autenticando..."
+          az account show
+
+    - script: |
+        echo "🧾 Plan con secret..."
+        terraform plan -var-file="terraform.tfvars" -var="attach_secret=true"
+      displayName: "Terraform Plan con secret"
+      workingDirectory: $(TF_DIR)
+
+    - script: |
+        echo "🚀 Apply con secret..."
+        terraform apply -auto-approve -var-file="terraform.tfvars" -var="attach_secret=true"
+      displayName: "Terraform Apply con secret"
       workingDirectory: $(TF_DIR)

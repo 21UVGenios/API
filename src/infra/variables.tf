@@ -29,3 +29,9 @@ variable "db_connection_string" {
   type        = string
   sensitive   = true
 }
+
+variable "attach_secret" {
+  description = "Indica si se debe adjuntar el secreto al Function App"
+  type        = bool
+  default     = false
+}

@@ -58,14 +58,15 @@ resource "azurerm_function_app" "functionapp" {
     type = "SystemAssigned"
   }
 
-  app_settings = {
+  app_settings = merge({
     "AzureWebJobsStorage"        = azurerm_storage_account.function_storage.primary_connection_string
     "FUNCTIONS_EXTENSION_VERSION" = "~4"
     "FUNCTIONS_WORKER_RUNTIME"    = "dotnet-isolated"
     "APPINSIGHTS_INSTRUMENTATIONKEY" = azurerm_application_insights.appinsights.instrumentation_key
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.appinsights.connection_string
-    "KeyVaultConnection"         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.db_connection.secret_uri})"
-  }
+  }, var.attach_secret ? {
+    "KeyVaultConnection" = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.db_connection.secret_uri})"
+  } : {})
 }
 
 resource "azurerm_key_vault" "keyvault" {
